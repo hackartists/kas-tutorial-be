@@ -2,10 +2,10 @@ var express = require('express');
 var router = express.Router();
 
 // middleware that is specific to this router
-router.use(function timeLog(req, res, next) {
-    console.log('Time: ', Date.now());
-    next();
-});
+// router.use(function timeLog(req, res, next) {
+//     console.log('Time: ', Date.now());
+//     next();
+// });
 
 router.post('/', (req, res) => {
     var address = '0x0000';
@@ -20,7 +20,6 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:user/klay', (req, res) => {
-    console.log(req.params);
     // TODO: user to address
 
     // TODO: get balance API

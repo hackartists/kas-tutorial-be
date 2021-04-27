@@ -39,7 +39,7 @@ router.post('/:user/klay', (req, res) => {
 
     // TODO: convert klay to peb
 
-    var txHash = '';
+    var txHash = '0x1';
     // TODO: send KLAY API
 
     // TODO: get receipt

@@ -1,9 +1,11 @@
+const request = require('request');
+
 class Wallet {
     constructor() {
         this.endpoint = 'https://wallet-api.klaytnapi.com';
     }
 
-    call = async (options) => {
+    async call(options) {
         options.url = this.endpoint;
 
         if (!options.headers) options.headers = {};
@@ -13,16 +15,14 @@ class Wallet {
             'Basic S0FTS1JFRDdPRk40VDBLV1NMMkY4VFBEOjVmU0dMYzg1eXptZ3lNYzhPMzR2dHBVVXVjdS81c1RGZ0RDbHZFWFQ=';
 
         return new Promise((resolve, reject) => {
-            request(options, function (error, _response, body) {
+            request(options, function(error, _response, body) {
                 if (error) reject(error);
                 else resolve(body);
             });
         });
     };
 
-    createAccount = async () => {
-        const request = require('request');
-
+    async createAccount() {
         const options = {
             method: 'POST',
         };
@@ -33,4 +33,4 @@ class Wallet {
 
 const wallet = new Wallet();
 
-module.export = wallet;
+module.exports = wallet;

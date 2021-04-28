@@ -14,6 +14,7 @@ router.post('/', async (req, res) => {
     var address = '0x0000';
 
     // TODO: create an account API
+    console.log(wallet)
     const account = await wallet.createAccount();
 
     // TODO: save address, userid, password
@@ -24,11 +25,11 @@ router.post('/', async (req, res) => {
     });
     user.save((err, _doc) => {
         if (err) console.error(err);
+        console.log(_doc);
     });
 
     res.json({
-        address: address,
-        balance: 1000,
+        address,
     });
 });
 

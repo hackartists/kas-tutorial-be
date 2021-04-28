@@ -15,7 +15,7 @@ class Node {
             'Basic S0FTS1JFRDdPRk40VDBLV1NMMkY4VFBEOjVmU0dMYzg1eXptZ3lNYzhPMzR2dHBVVXVjdS81c1RGZ0RDbHZFWFQ=';
 
         return new Promise((resolve, reject) => {
-            request(options, function (error, _response, body) {
+            request(options, function(error, _response, body) {
                 if (error) reject(error);
                 else resolve(body);
             });
@@ -45,4 +45,4 @@ class Node {
 
 const node = new Node();
 
-module.export = node;
+module.exports = node;

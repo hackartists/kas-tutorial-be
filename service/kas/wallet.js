@@ -1,4 +1,6 @@
 const request = require('request');
+const Caver = require('caver-js');
+const caver = new Caver('https://your.en.url:8651/');
 
 class Wallet {
     constructor() {
@@ -6,7 +8,7 @@ class Wallet {
     }
 
     async call(options) {
-        options.url = this.endpoint;
+        options.url = this.endpoint + options.url;
 
         if (!options.headers) options.headers = {};
 
@@ -17,18 +19,42 @@ class Wallet {
         return new Promise((resolve, reject) => {
             request(options, function(error, _response, body) {
                 if (error) reject(error);
-                else resolve(body);
+                else resolve(JSON.parse(body));
             });
         });
-    };
+    }
 
     async createAccount() {
         const options = {
             method: 'POST',
+            url: '/v2/account',
         };
 
         return await this.call(options);
-    };
+    }
+
+    async sendTrasfer(from, to, amount) {
+        // TODO: convert klay to peb
+        const peb = caver.utils.convertToPeb(amount, 'KLAY');
+        const hexpeb = caver.utils.numberToHex(peb);
+
+        // TODO: send KLAY API
+        const options = {
+            method: 'POST',
+            url: '/v2/tx/value',
+            body: {
+                from: from,
+                value: hexpeb,
+                to: to,
+                submit: true,
+            },
+            json: true,
+        };
+
+        const res = await this.call(options);
+
+        return res.transactionHash;
+    }
 }
 
 const wallet = new Wallet();

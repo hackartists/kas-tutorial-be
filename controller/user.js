@@ -11,10 +11,7 @@ var router = express.Router();
 // });
 
 router.post('/', async (req, res) => {
-    var address = '0x0000';
-
     // TODO: create an account API
-    console.log(wallet)
     const account = await wallet.createAccount();
 
     // TODO: save address, userid, password
@@ -23,47 +20,44 @@ router.post('/', async (req, res) => {
         password: req.body.password,
         address: account.address,
     });
-    user.save((err, _doc) => {
+
+    user.save((err, doc) => {
         if (err) console.error(err);
-        console.log(_doc);
+        console.log(doc);
     });
 
     res.json({
-        address,
+        address: account.address,
     });
 });
 
 router.get('/:user/klay', async (req, res) => {
-    // TODO: user to address
-    const user = await User.findOne({ name: req.params.user });
-    console.log(user);
-    const address = user.address;
+    const address = userToAddress(req.params.user);
 
     // TODO: get balance API
-    const balance = node.getBalance(address);
+    const balance = await node.getBalance(address);
     res.json({
         balance,
     });
 });
 
-router.post('/:user/klay', (req, res) => {
-    console.log(req.body);
-    var fromUser = req.body.from;
-    var toUser = req.body.to;
-    var klay = req.body.klay;
+router.post('/:user/klay', async (req, res) => {
+    const from = userToAddress(req.body.from);
+    const to = userToAddress(req.body.to);
+    const amount = req.body.amount;
 
-    // TODO: convert users to addresses
-
-    // TODO: convert klay to peb
-
-    var txHash = '0x1';
     // TODO: send KLAY API
-
-    // TODO: get receipt
+    const txHash = wallet.sendTrasfer(from, to, amount);
 
     res.json({
         txHash,
     });
 });
+
+async function userToAddress(userid) {
+    const user = await User.findOne({ name: userid });
+
+    return user.address;
+}
 
 module.exports = router;

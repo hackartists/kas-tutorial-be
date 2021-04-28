@@ -1,12 +1,14 @@
 const request = require('request');
+const Caver = require('caver-js');
+const caver = new Caver('https://your.en.url:8651/');
 
 class Node {
     constructor() {
         this.endpoint = 'https://node-api.klaytnapi.com';
     }
 
-    call = async (options) => {
-        options.url = this.endpoint;
+    async call(options) {
+        options.url = this.endpoint + options.url;
 
         if (!options.headers) options.headers = {};
 
@@ -22,9 +24,10 @@ class Node {
         });
     };
 
-    getBalance = async (address) => {
+    async getBalance(address) {
         const options = {
             method: 'POST',
+            url: '/v1/klaytn',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -38,8 +41,10 @@ class Node {
         };
 
         const ret = await this.call(options);
+        const peb = caver.utils.hexToNumberString(ret.result);
+        const klay = caver.utils.convertFromPeb(peb, "KLAY");
 
-        return ret.result;
+        return klay;
     };
 }
 

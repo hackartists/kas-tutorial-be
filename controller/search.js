@@ -10,7 +10,7 @@ var router = express.Router();
 
 router.get('', (req, res) => {
     console.log(req.query);
-    var pattern = req.params['user-pattern'];
+    var pattern = req.query['user-pattern'];
 
     const users = User.find({ name: { $regex: `^${pattern}`, $options: 'i' } });
     res.json({

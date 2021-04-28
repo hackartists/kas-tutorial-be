@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const user = require('./controller/user');
 const search = require('./controller/search');
 
-mongoose.connect('mongodb://mongo:27017/kas-tutorial', { useUnifiedTopology: true, useNewUrlParser: true });
+mongoose.connect('mongodb://10.240.1.4:27017/kas-tutorial', { useUnifiedTopology: true, useNewUrlParser: true });
 
 const app = express();
 

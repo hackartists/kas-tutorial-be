@@ -1,4 +1,5 @@
-var express = require('express');
+const express = require('express');
+const User = require('../model/user');
 var router = express.Router();
 
 // middleware that is specific to this router
@@ -11,10 +12,9 @@ router.get('', (req, res) => {
     console.log(req.query);
     var pattern = req.params['user-pattern'];
 
-    // TODO: find address from mongo
-
+    const users = User.find({ name: { $regex: `^${pattern}`, $options: 'i' } });
     res.json({
-        users: ['test', 'luffy'],
+        users,
     });
 });
 

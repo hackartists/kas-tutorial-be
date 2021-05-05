@@ -1,0 +1,19 @@
+version: "3"
+
+networks:
+    default:
+        external:
+            name: dev-net
+
+services:
+    mongo.kas-tutorial:
+        image: mongo
+        container_name: mongo.kas-tutorial
+        restart: always
+
+    mongo-ui.kas-tutorial:
+        image: mongo-express
+        container_name: mongo-ui.kas-tutorial
+        restart: always
+        environment:
+            VCAP_APP_PORT: 80

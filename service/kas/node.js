@@ -41,8 +41,11 @@ class Node {
         };
 
         const ret = await this.call(options);
-        const peb = caver.utils.hexToNumberString(ret.result);
-        const klay = caver.utils.convertFromPeb(peb, "KLAY");
+        let klay = "0";
+        if (ret.result) {
+            const peb = caver.utils.hexToNumberString(ret.result);
+            klay = caver.utils.convertFromPeb(peb, "KLAY");
+        }
 
         return klay;
     };

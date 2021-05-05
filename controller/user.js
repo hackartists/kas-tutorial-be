@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/:user/klay', async (req, res) => {
-    const address = userToAddress(req.params.user);
+    const address = await userToAddress(req.params.user);
 
     // TODO: get balance API
     const balance = await node.getBalance(address);
@@ -42,12 +42,13 @@ router.get('/:user/klay', async (req, res) => {
 });
 
 router.post('/:user/klay', async (req, res) => {
-    const from = userToAddress(req.body.from);
-    const to = userToAddress(req.body.to);
+    const from = await userToAddress(req.params.user);
+    const to = await userToAddress(req.body.to);
     const amount = req.body.amount;
+    console.log(from, to, amount);
 
     // TODO: send KLAY API
-    const txHash = wallet.sendTrasfer(from, to, amount);
+    const txHash = await wallet.sendTrasfer(from, to, amount);
 
     res.json({
         txHash,

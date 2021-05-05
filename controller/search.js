@@ -8,11 +8,16 @@ var router = express.Router();
 //     next();
 // });
 
-router.get('', (req, res) => {
+router.get('', async (req, res) => {
     console.log(req.query);
     var pattern = req.query['user-pattern'];
 
-    const users = User.find({ name: { $regex: `^${pattern}`, $options: 'i' } });
+    const doc = await User.find(
+        { name: { $regex: `^${pattern}`, $options: 'i' } },
+        'name',
+    );
+    const users = [];
+    doc.forEach((e) => users.push(e.name));
     res.json({
         users,
     });

@@ -1,34 +1,16 @@
-const request = require('request');
-const Caver = require('caver-js');
-const caver = new Caver('https://your.en.url:8651/');
+const caver = require('caver-js');
+const ApiCaller = require('./api_caller');
 
-class Wallet {
+class Wallet extends ApiCaller {
     constructor() {
-        this.endpoint = 'https://wallet-api.klaytnapi.com';
-    }
-
-    async call(options) {
-        options.url = this.endpoint + options.url;
-
-        if (!options.headers) options.headers = {};
-
-        options.headers['x-chain-id'] = '1001';
-        options.headers['content-type'] = 'application/json';
-        options.headers.Authorization =
-            'Basic S0FTS1JFRDdPRk40VDBLV1NMMkY4VFBEOjVmU0dMYzg1eXptZ3lNYzhPMzR2dHBVVXVjdS81c1RGZ0RDbHZFWFQ=';
-
-        return new Promise((resolve, reject) => {
-            request(options, function(error, _response, body) {
-                if (error) reject(error);
-                else resolve(body);
-            });
-        });
+        super('https://wallet-api.klaytnapi.com');
     }
 
     async createAccount() {
         const options = {
             method: 'POST',
             url: '/v2/account',
+            json: true,
         };
 
         return await this.call(options);

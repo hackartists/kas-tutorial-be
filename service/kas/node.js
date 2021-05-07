@@ -1,28 +1,10 @@
-const request = require('request');
-const Caver = require('caver-js');
-const caver = new Caver('https://your.en.url:8651/');
+const caver = require('caver-js');
+const ApiCaller = require('./api_caller');
 
-class Node {
+class Node extends ApiCaller {
     constructor() {
-        this.endpoint = 'https://node-api.klaytnapi.com';
+        super('https://node-api.klaytnapi.com');
     }
-
-    async call(options) {
-        options.url = this.endpoint + options.url;
-
-        if (!options.headers) options.headers = {};
-
-        options.headers['x-chain-id'] = '1001';
-        options.headers.Authorization =
-            'Basic S0FTS1JFRDdPRk40VDBLV1NMMkY4VFBEOjVmU0dMYzg1eXptZ3lNYzhPMzR2dHBVVXVjdS81c1RGZ0RDbHZFWFQ=';
-
-        return new Promise((resolve, reject) => {
-            request(options, function(error, _response, body) {
-                if (error) reject(error);
-                else resolve(body);
-            });
-        });
-    };
 
     async getBalance(address) {
         const options = {
@@ -41,14 +23,14 @@ class Node {
         };
 
         const ret = await this.call(options);
-        let klay = "0";
+        let klay = '0';
         if (ret.result) {
             const peb = caver.utils.hexToNumberString(ret.result);
-            klay = caver.utils.convertFromPeb(peb, "KLAY");
+            klay = caver.utils.convertFromPeb(peb, 'KLAY');
         }
 
         return klay;
-    };
+    }
 }
 
 const node = new Node();

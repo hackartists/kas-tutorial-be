@@ -2,6 +2,8 @@ const express = require('express');
 const User = require('../model/user');
 const wallet = require('../service/kas/wallet');
 const node = require('../service/kas/node');
+const th = require('../service/kas/th');
+const caver = require('caver-js');
 var router = express.Router();
 
 // middleware that is specific to this router
@@ -13,6 +15,7 @@ var router = express.Router();
 router.post('/', async (req, res) => {
     // TODO: create an account API
     const account = await wallet.createAccount();
+    console.log(account);
 
     // TODO: save address, userid, password
     const user = new User({
@@ -41,6 +44,42 @@ router.get('/:user/klay', async (req, res) => {
     });
 });
 
+router.get('/:user/klay/transfer-history', async (req, res) => {
+    const address = await userToAddress(req.params.user);
+    const starttime = req.query['start-timestamp'];
+    const endtime = req.query['end-timestamp'];
+
+    const history = await th.klayHistory(address, starttime, endtime);
+    const ret = [];
+    for (const el of history) {
+        const klay = caver.utils.convertFromPeb(
+            caver.utils.hexToNumberString(el.value),
+            'KLAY',
+        );
+
+        const item = {
+            value: klay,
+            timestamp: el.timestamp,
+        };
+        let target = '';
+
+        if (caver.utils.toChecksumAddress(el.from) === address) {
+            item.eventType = 'sent';
+            target = el.to;
+        } else {
+            item.eventType = 'received';
+            target = el.from;
+        }
+
+        const targetuser = await addressToUser(target);
+
+        item.target = targetuser !== '' ? targetuser : target;
+        ret.push(item);
+    }
+
+    res.json(ret);
+});
+
 router.post('/:user/klay', async (req, res) => {
     const from = await userToAddress(req.params.user);
     const to = await userToAddress(req.body.to);
@@ -59,6 +98,13 @@ async function userToAddress(userid) {
     const user = await User.findOne({ name: userid });
 
     return user.address;
+}
+
+async function addressToUser(address) {
+    const user = await User.findOne({ address: caver.utils.toChecksumAddress(address) });
+
+
+    return user === null ? '': user.name;
 }
 
 module.exports = router;

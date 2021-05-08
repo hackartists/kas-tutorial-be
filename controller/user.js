@@ -13,6 +13,11 @@ var router = express.Router();
 // });
 
 router.post('/', async (req, res) => {
+    const address = await userToAddress(req.body.username);
+    if (address !== '') {
+        res.json({ address });
+        return;
+    }
     // TODO: create an account API
     const account = await wallet.createAccount();
     console.log(account);
@@ -96,15 +101,17 @@ router.post('/:user/klay', async (req, res) => {
 
 async function userToAddress(userid) {
     const user = await User.findOne({ name: userid });
+    if (user === null) return '';
 
     return user.address;
 }
 
 async function addressToUser(address) {
-    const user = await User.findOne({ address: caver.utils.toChecksumAddress(address) });
+    const user = await User.findOne({
+        address: caver.utils.toChecksumAddress(address),
+    });
 
-
-    return user === null ? '': user.name;
+    return user === null ? '' : user.name;
 }
 
 module.exports = router;

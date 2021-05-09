@@ -42,7 +42,6 @@ router.post('/', async (req, res) => {
 
 router.get('/:user/klay', async (req, res) => {
     const address = await conv.userToAddress(req.params.user);
-
     // TODO: get balance API
     const balance = await node.getBalance(address);
     res.json({
@@ -99,20 +98,5 @@ router.post('/:user/klay', async (req, res) => {
         txHash,
     });
 });
-
-// async function conv.userToAddress(userid) {
-//     const user = await User.findOne({ name: userid });
-//     if (user === null) return '';
-
-//     return user.address;
-// }
-
-// async function addressToUser(address) {
-//     const user = await User.findOne({
-//         address: caver.utils.toChecksumAddress(address),
-//     });
-
-//     return user === null ? '' : user.name;
-// }
 
 module.exports = router;

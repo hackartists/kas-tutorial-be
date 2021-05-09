@@ -4,6 +4,7 @@ const wallet = require('../service/kas/wallet');
 const node = require('../service/kas/node');
 const th = require('../service/kas/th');
 const caver = require('caver-js');
+const conv = require('../utils/conv');
 var router = express.Router();
 
 // middleware that is specific to this router
@@ -13,7 +14,7 @@ var router = express.Router();
 // });
 
 router.post('/', async (req, res) => {
-    const address = await userToAddress(req.body.username);
+    const address = await conv.userToAddress(req.body.username);
     if (address !== '') {
         res.json({ address });
         return;
@@ -40,7 +41,7 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/:user/klay', async (req, res) => {
-    const address = await userToAddress(req.params.user);
+    const address = await conv.userToAddress(req.params.user);
 
     // TODO: get balance API
     const balance = await node.getBalance(address);
@@ -50,7 +51,7 @@ router.get('/:user/klay', async (req, res) => {
 });
 
 router.get('/:user/klay/transfer-history', async (req, res) => {
-    const address = await userToAddress(req.params.user);
+    const address = await conv.userToAddress(req.params.user);
     const starttime = req.query['start-timestamp'];
     const endtime = req.query['end-timestamp'];
 
@@ -76,7 +77,7 @@ router.get('/:user/klay/transfer-history', async (req, res) => {
             target = el.from;
         }
 
-        const targetuser = await addressToUser(target);
+        const targetuser = await conv.addressToUser(target);
 
         item.target = targetuser !== '' ? targetuser : target;
         ret.push(item);
@@ -86,8 +87,8 @@ router.get('/:user/klay/transfer-history', async (req, res) => {
 });
 
 router.post('/:user/klay', async (req, res) => {
-    const from = await userToAddress(req.params.user);
-    const to = await userToAddress(req.body.to);
+    const from = await conv.userToAddress(req.params.user);
+    const to = await conv.userToAddress(req.body.to);
     const amount = req.body.amount;
     console.log(from, to, amount);
 
@@ -99,19 +100,19 @@ router.post('/:user/klay', async (req, res) => {
     });
 });
 
-async function userToAddress(userid) {
-    const user = await User.findOne({ name: userid });
-    if (user === null) return '';
+// async function conv.userToAddress(userid) {
+//     const user = await User.findOne({ name: userid });
+//     if (user === null) return '';
 
-    return user.address;
-}
+//     return user.address;
+// }
 
-async function addressToUser(address) {
-    const user = await User.findOne({
-        address: caver.utils.toChecksumAddress(address),
-    });
+// async function addressToUser(address) {
+//     const user = await User.findOne({
+//         address: caver.utils.toChecksumAddress(address),
+//     });
 
-    return user === null ? '' : user.name;
-}
+//     return user === null ? '' : user.name;
+// }
 
 module.exports = router;

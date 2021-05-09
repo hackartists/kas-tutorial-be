@@ -14,7 +14,7 @@ class ApiCaller {
         options.headers['x-chain-id'] = '1001';
         options.headers['content-type'] = 'application/json';
         options.headers.Authorization =
-            'Basic S0FTS1JFRDdPRk40VDBLV1NMMkY4VFBEOjVmU0dMYzg1eXptZ3lNYzhPMzR2dHBVVXVjdS81c1RGZ0RDbHZFWFQ=';
+            'Basic S0FTS0EzUzkySDdKT1M5TjJTWTdQSzlNOlVyR3djUS9NQURHbHJIRUFaQmFBckVzRTBkVlVLY2ZhcG9TdkNhalU=';
 
         return new Promise((resolve, reject) => {
             request(options, function (error, _response, body) {

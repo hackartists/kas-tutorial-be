@@ -59,4 +59,19 @@ router.get('/:user/token', async (req, res) => {
     res.json(tokens);
 });
 
+router.post('/:user/token/:token', async (req, res) => {
+    const user = req.params.user;
+    const tokenId = req.params.token;
+    const toUser = req.body.to;
+    console.log(user, tokenId, toUser)
+    const address = await conv.userToAddress(user);
+    const to = await conv.userToAddress(toUser);
+    const tokens = await kip17.listTokens(address);
+
+    const result = await kip17.sendToken(address, tokenId, to);
+
+    res.json(result);
+});
+
+
 module.exports = router;

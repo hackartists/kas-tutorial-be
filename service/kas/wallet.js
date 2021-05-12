@@ -39,6 +39,35 @@ class Wallet extends ApiCaller {
 
         return res.transactionHash;
     }
+
+    async updateAccountToMultisig(from, ownerPublicKey, publicKeys) {
+        const threshold = publicKeys.length;
+        const weightedKeys = [
+            { publicKey: ownerPublicKey, weight: threshold },
+        ].concat(
+            Array.from(publicKeys, function (el) {
+                return {
+                    publicKey: el,
+                    weight: 1,
+                };
+            }),
+        );
+
+        const options = {
+            method: 'PUT',
+            url: '/v2/account/${from}/multisig',
+            body: {
+                threshold: threshold,
+                weightedKeys: weightedKeys,
+            },
+            json: true,
+        };
+
+        const res = await this.call(options);
+        console.log(res);
+
+        return res;
+    }
 }
 
 const wallet = new Wallet();

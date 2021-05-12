@@ -16,7 +16,14 @@ async function addressToUser(address) {
     return user === null ? '' : user.name;
 }
 
+async function userToAccount(userid) {
+    const user = await User.findOne({ name: userid });
+    if (user === null) return '';
+
+    return user;
+}
 module.exports = {
     userToAddress: userToAddress,
     addressToUser: addressToUser,
+    userToAccount: userToAccount,
 };

@@ -17,38 +17,38 @@ var storage = multer.diskStorage({
     },
 });
 var upload = multer({ storage: storage });
-router.post(
-    '/:user/issue',
-    upload.single('file'),
-    async function (req, res, next) {
-        console.log(req.body);
-        console.log(req.params);
-        if (!req.file) {
-            res.status(500);
-            return next(err);
-        }
-        const img = '/images/' + req.file.filename;
-        const meta = JSON.stringify({
-            name: req.body.name,
-            kind: req.body.kind,
-            image: img,
-        });
-        const metadata = new Metadata({
-            name: req.body.name,
-            kind: req.body.kind,
-            image: img,
-        });
-        const doc = await metadata.save();
-        console.log(doc);
-        const id = '0x' + doc._id.toString();
-        // const uri = `/v1/metadata/${id}`;
-        const address = await conv.userToAddress(req.params.user);
+router.post('/:user/issue', upload.single('file'), async function (
+    req,
+    res,
+    next,
+) {
+    console.log(req.body);
+    console.log(req.params);
+    if (!req.file) {
+        res.status(500);
+        return next(err);
+    }
+    const img = '/images/' + req.file.filename;
+    const meta = JSON.stringify({
+        name: req.body.name,
+        kind: req.body.kind,
+        image: img,
+    });
+    const metadata = new Metadata({
+        name: req.body.name,
+        kind: req.body.kind,
+        image: img,
+    });
+    const doc = await metadata.save();
+    console.log(doc);
+    const id = '0x' + doc._id.toString();
+    // const uri = `/v1/metadata/${id}`;
+    const address = await conv.userToAddress(req.params.user);
 
-        await kip17.issueToken(address, id, meta);
+    await kip17.issueToken(address, id, meta);
 
-        res.json({ metadata: doc._id.toString() });
-    },
-);
+    res.json({ metadata: doc._id.toString() });
+});
 
 router.get('/:user/token', async (req, res) => {
     const user = req.params.user;
@@ -63,15 +63,12 @@ router.post('/:user/token/:token', async (req, res) => {
     const user = req.params.user;
     const tokenId = req.params.token;
     const toUser = req.body.to;
-    console.log(user, tokenId, toUser)
+    console.log(user, tokenId, toUser);
     const address = await conv.userToAddress(user);
     const to = await conv.userToAddress(toUser);
-    const tokens = await kip17.listTokens(address);
-
     const result = await kip17.sendToken(address, tokenId, to);
 
     res.json(result);
 });
-
 
 module.exports = router;

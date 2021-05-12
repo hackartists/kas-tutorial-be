@@ -22,12 +22,12 @@ router.post('/', async (req, res) => {
     // TODO: create an account API
     const account = await wallet.createAccount();
     console.log(account);
-
     // TODO: save address, userid, password
     const user = new User({
         name: req.body.username,
         password: req.body.password,
         address: account.address,
+        publicKey: account.PublicKey,
     });
 
     user.save((err, doc) => {

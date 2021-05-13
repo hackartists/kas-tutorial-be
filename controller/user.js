@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
         name: req.body.username,
         password: req.body.password,
         address: account.address,
-        publicKey: account.PublicKey,
+        publicKey: account.publicKey,
     });
 
     user.save((err, doc) => {

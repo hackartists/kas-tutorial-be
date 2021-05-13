@@ -1,9 +1,16 @@
 const User = require('../model/user');
+const Safe = require('../model/safe');
 const caver = require('caver-js');
 
 async function userToAddress(userid) {
-    const user = await User.findOne({ name: userid });
-    if (user === null) return '';
+    if (userid.startsWith('0x')) {
+        return userid;
+    }
+    var user = await User.findOne({ name: userid });
+    if (user === null) {
+        user = await Safe.findOne({ name: userid });
+    }
+    if (user == null) return '';
 
     return user.address;
 }

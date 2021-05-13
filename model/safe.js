@@ -8,6 +8,7 @@ const safeMoneySchema = new mongoose.Schema({
     tokenId: String,
     creator: String,
     attendees: Array,
+    pendings: Object,
 });
 
 const SafeMoney = mongoose.model('SafeMoney', safeMoneySchema);

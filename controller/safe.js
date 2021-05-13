@@ -25,7 +25,10 @@ router.post('/', async (req, res) => {
 
     // TODO: conversion user to publickey.
     const pubkeys = [];
-    for (const el in req.body.invitees) {
+    console.log(req.body);
+
+    for (const el of req.body.invitees.split(' ')) {
+        console.log(el);
         const acc = await conv.userToAccount(el);
         pubkeys.push(acc.publicKey);
     }
@@ -63,9 +66,31 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/:user', async (req, res) => {
-    const safes = await SafeMoney.find({attendees: req.params.user});
+    const safes = await SafeMoney.find({ attendees: req.params.user });
+    console.log(safes);
 
     res.json(safes);
+});
+
+router.post('/:safe/:token/sign', async (req, res) => {
+    const transactionId = req.body.transactionId;
+    const userId = req.body.userId;
+    const address = await conv.userToAddress(userId);
+    const safeAddress = req.params.safe;
+    const tokenId = req.params.token;
+
+    const response = await wallet.signMultisigTransaction(
+        address,
+        transactionId,
+    );
+    console.log(response);
+
+    const doc = await SafeMoney.findOne({ address: safeAddress });
+    delete doc.pendings[tokenId];
+    const result = await doc.save();
+    console.log(result);
+
+    res.json(result);
 });
 
 module.exports = router;

@@ -2,7 +2,9 @@ const express = require('express');
 const multer = require('multer');
 const conv = require('../utils/conv');
 const Metadata = require('../model/metadata');
+const Safe = require('../model/safe');
 const kip17 = require('../service/kas/kip17');
+const wallet = require('../service/kas/wallet');
 var router = express.Router();
 
 var storage = multer.diskStorage({
@@ -67,6 +69,27 @@ router.post('/:user/token/:token', async (req, res) => {
     const address = await conv.userToAddress(user);
     const to = await conv.userToAddress(toUser);
     const result = await kip17.sendToken(address, tokenId, to);
+
+    if (user.startsWith('0x')) {
+        const txs = await wallet.getMultisigTransactions(user);
+        for (const tx of txs.items) {
+            if (tx.txData.input.includes(tokenId.substring(2))) {
+                console.log(tx.transactionId);
+                const safe = await Safe.findOne({ address: user });
+                if (!safe.pendings) {
+                    safe.pendings = {};
+                }
+
+                safe.pendings[tokenId] = {
+                    txid: tx.transactionId,
+                    to: toUser,
+                };
+                const result = await safe.save();
+                console.log(result);
+                break;
+            }
+        }
+    }
 
     res.json(result);
 });

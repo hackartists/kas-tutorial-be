@@ -23,36 +23,6 @@ class Kip17 extends ApiCaller {
         const res = await this.call(options);
         console.log(res);
     }
-
-    async listTokens(address) {
-        const options = {
-            method: 'GET',
-            url: `/v1/contract/kas-tutorial/owner/${address}`,
-        };
-
-        const res = await this.call(options);
-        console.log(res);
-
-        return res.items;
-    }
-
-    async sendToken(address, tokenId, to) {
-        const options = {
-            method: 'POST',
-            url: `/v1/contract/kas-tutorial/token/${tokenId}`,
-            body: {
-                sender: address,
-                owner: address,
-                to: to,
-            },
-            json: true,
-        };
-
-        const res = await this.call(options);
-        console.log(res);
-
-        return res;
-    }
 }
 
 const kip17 = new Kip17();

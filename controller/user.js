@@ -1,7 +1,6 @@
 const express = require('express');
 const User = require('../model/user');
 const wallet = require('../service/kas/wallet');
-const conv = require('../utils/conv');
 var router = express.Router();
 
 router.post('/', async (req, res) => {

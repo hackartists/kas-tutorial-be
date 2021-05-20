@@ -1,4 +1,3 @@
-const caver = require('caver-js');
 const ApiCaller = require('./api_caller');
 
 class Wallet extends ApiCaller {

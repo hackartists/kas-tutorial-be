@@ -2,8 +2,6 @@ const express = require('express');
 const User = require('../model/user');
 const wallet = require('../service/kas/wallet');
 const node = require('../service/kas/node');
-const th = require('../service/kas/th');
-const caver = require('caver-js');
 const conv = require('../utils/conv');
 var router = express.Router();
 
@@ -28,11 +26,9 @@ router.post('/', async (req, res) => {
     });
 });
 
+// TODO: get KLAY API implementation
 router.get('/:user/klay', async (req, res) => {
-    // TODO: user to address
     const address = await conv.userToAddress(req.params.user);
-
-    // TODO: get balance API
     const balance = await node.getBalance(address);
 
     res.json({

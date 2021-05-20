@@ -19,10 +19,8 @@ router.post('/', async (req, res) => {
         res.json({ address });
         return;
     }
-    // TODO: create an account API
     const account = await wallet.createAccount();
-    console.log(account);
-    // TODO: save address, userid, password
+
     const user = new User({
         name: req.body.username,
         password: req.body.password,
@@ -42,10 +40,22 @@ router.post('/', async (req, res) => {
 
 router.get('/:user/klay', async (req, res) => {
     const address = await conv.userToAddress(req.params.user);
-    // TODO: get balance API
     const balance = await node.getBalance(address);
     res.json({
         balance,
+    });
+});
+
+router.post('/:user/klay', async (req, res) => {
+    const from = await conv.userToAddress(req.params.user);
+    const to = await conv.userToAddress(req.body.to);
+    const amount = req.body.amount;
+    console.log(from, to, amount);
+
+    const txHash = await wallet.sendTrasfer(from, to, amount);
+
+    res.json({
+        txHash,
     });
 });
 
@@ -83,20 +93,6 @@ router.get('/:user/klay/transfer-history', async (req, res) => {
     }
 
     res.json(ret);
-});
-
-router.post('/:user/klay', async (req, res) => {
-    const from = await conv.userToAddress(req.params.user);
-    const to = await conv.userToAddress(req.body.to);
-    const amount = req.body.amount;
-    console.log(from, to, amount);
-
-    // TODO: send KLAY API
-    const txHash = await wallet.sendTrasfer(from, to, amount);
-
-    res.json({
-        txHash,
-    });
 });
 
 module.exports = router;

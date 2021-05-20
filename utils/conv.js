@@ -1,5 +1,4 @@
 const User = require('../model/user');
-const Safe = require('../model/safe');
 const caver = require('caver-js');
 
 async function userToAddress(userid) {

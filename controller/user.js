@@ -59,40 +59,4 @@ router.post('/:user/klay', async (req, res) => {
     });
 });
 
-router.get('/:user/klay/transfer-history', async (req, res) => {
-    const address = await conv.userToAddress(req.params.user);
-    const starttime = req.query['start-timestamp'];
-    const endtime = req.query['end-timestamp'];
-
-    const history = await th.klayHistory(address, starttime, endtime);
-    const ret = [];
-    for (const el of history) {
-        const klay = caver.utils.convertFromPeb(
-            caver.utils.hexToNumberString(el.value),
-            'KLAY',
-        );
-
-        const item = {
-            value: klay,
-            timestamp: el.timestamp,
-        };
-        let target = '';
-
-        if (caver.utils.toChecksumAddress(el.from) === address) {
-            item.eventType = 'sent';
-            target = el.to;
-        } else {
-            item.eventType = 'received';
-            target = el.from;
-        }
-
-        const targetuser = await conv.addressToUser(target);
-
-        item.target = targetuser !== '' ? targetuser : target;
-        ret.push(item);
-    }
-
-    res.json(ret);
-});
-
 module.exports = router;

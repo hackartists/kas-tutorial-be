@@ -17,11 +17,9 @@ class Wallet extends ApiCaller {
     }
 
     async sendTrasfer(from, to, amount) {
-        // TODO: convert klay to peb
         const peb = caver.utils.convertToPeb(amount, 'KLAY');
         const hexpeb = caver.utils.numberToHex(peb);
 
-        // TODO: send KLAY API
         const options = {
             method: 'POST',
             url: '/v2/tx/fd/value',

@@ -5,12 +5,6 @@ const node = require('../service/kas/node');
 const conv = require('../utils/conv');
 var router = express.Router();
 
-// middleware that is specific to this router
-// router.use(function timeLog(req, res, next) {
-//     console.log('Time: ', Date.now());
-//     next();
-// });
-
 router.post('/', async (req, res) => {
     const account = await wallet.createAccount();
 
@@ -39,6 +33,7 @@ router.get('/:user/klay', async (req, res) => {
     });
 });
 
+// TODO: POST /v1/user/:user/klay API
 router.post('/:user/klay', async (req, res) => {
     const from = await conv.userToAddress(req.params.user);
     const to = await conv.userToAddress(req.body.to);

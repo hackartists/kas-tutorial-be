@@ -5,9 +5,6 @@ async function userToAddress(userid) {
         return userid;
     }
     var user = await User.findOne({ name: userid });
-    if (user === null) {
-        user = await Safe.findOne({ name: userid });
-    }
     if (user == null) return '';
 
     return user.address;

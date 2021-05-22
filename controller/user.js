@@ -2,8 +2,6 @@ const express = require('express');
 const User = require('../model/user');
 const wallet = require('../service/kas/wallet');
 const node = require('../service/kas/node');
-const th = require('../service/kas/th');
-const caver = require('caver-js');
 const conv = require('../utils/conv');
 var router = express.Router();
 
@@ -14,11 +12,6 @@ var router = express.Router();
 // });
 
 router.post('/', async (req, res) => {
-    const address = await conv.userToAddress(req.body.username);
-    if (address !== '') {
-        res.json({ address });
-        return;
-    }
     const account = await wallet.createAccount();
 
     const user = new User({

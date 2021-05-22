@@ -7,12 +7,6 @@ const caver = require('caver-js');
 const conv = require('../utils/conv');
 var router = express.Router();
 
-// middleware that is specific to this router
-// router.use(function timeLog(req, res, next) {
-//     console.log('Time: ', Date.now());
-//     next();
-// });
-
 router.post('/', async (req, res) => {
     const address = await conv.userToAddress(req.body.username);
     if (address !== '') {
@@ -59,6 +53,7 @@ router.post('/:user/klay', async (req, res) => {
     });
 });
 
+// TODO: GET /v1/user/:user/klay/transfer-history?start-timestamp=:ts&end-timestamp=:ts API
 router.get('/:user/klay/transfer-history', async (req, res) => {
     const address = await conv.userToAddress(req.params.user);
     const starttime = req.query['start-timestamp'];

@@ -5,6 +5,7 @@ const Metadata = require('../model/metadata');
 const Safe = require('../model/safe');
 const kip17 = require('../service/kas/kip17');
 const wallet = require('../service/kas/wallet');
+const endpoint = 'http://10.1.1.2:3000';
 var router = express.Router();
 
 var storage = multer.diskStorage({
@@ -30,24 +31,20 @@ router.post('/:user/issue', upload.single('file'), async function (
         res.status(500);
         return next(err);
     }
-    const img = '/images/' + req.file.filename;
-    const meta = JSON.stringify({
-        name: req.body.name,
-        kind: req.body.kind,
-        image: img,
-    });
+    const img = endpoint + '/images/' + req.file.filename;
+
     const metadata = new Metadata({
         name: req.body.name,
+        description: req.body.kind,
         kind: req.body.kind,
         image: img,
     });
     const doc = await metadata.save();
-    console.log(doc);
     const id = '0x' + doc._id.toString();
-    // const uri = `/v1/metadata/${id}`;
+    const uri = `${endpoint}/v1/metadata/${id}`;
     const address = await conv.userToAddress(req.params.user);
 
-    await kip17.issueToken(address, id, meta);
+    await kip17.issueToken(address, id, uri);
 
     res.json({ metadata: doc._id.toString() });
 });

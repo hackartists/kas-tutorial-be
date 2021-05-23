@@ -7,22 +7,14 @@ const caver = require('caver-js');
 const conv = require('../utils/conv');
 var router = express.Router();
 
-// middleware that is specific to this router
-// router.use(function timeLog(req, res, next) {
-//     console.log('Time: ', Date.now());
-//     next();
-// });
-
 router.post('/', async (req, res) => {
     const address = await conv.userToAddress(req.body.username);
     if (address !== '') {
         res.json({ address });
         return;
     }
-    // TODO: create an account API
     const account = await wallet.createAccount();
     console.log(account);
-    // TODO: save address, userid, password
     const user = new User({
         name: req.body.username,
         password: req.body.password,
@@ -42,7 +34,6 @@ router.post('/', async (req, res) => {
 
 router.get('/:user/klay', async (req, res) => {
     const address = await conv.userToAddress(req.params.user);
-    // TODO: get balance API
     const balance = await node.getBalance(address);
     res.json({
         balance,
@@ -91,7 +82,6 @@ router.post('/:user/klay', async (req, res) => {
     const amount = req.body.amount;
     console.log(from, to, amount);
 
-    // TODO: send KLAY API
     const txHash = await wallet.sendTrasfer(from, to, amount);
 
     res.json({

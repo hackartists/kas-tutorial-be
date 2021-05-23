@@ -2,6 +2,7 @@ const express = require('express');
 const Metadata = require('../model/metadata');
 var router = express.Router();
 
+// TODO GET /v1/metadata/:id API
 router.get('/:id', async (req, res) => {
     console.log(req.params.id);
     const id = req.params.id.replace(/^0x/, '');

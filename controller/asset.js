@@ -49,6 +49,7 @@ router.post('/:user/issue', upload.single('file'), async function (
     res.json({ metadata: doc._id.toString() });
 });
 
+// TODO: GET /v1/asset/:user/token API
 router.get('/:user/token', async (req, res) => {
     const user = req.params.user;
     const address = await conv.userToAddress(user);
@@ -58,6 +59,7 @@ router.get('/:user/token', async (req, res) => {
     res.json(tokens);
 });
 
+// TODO: POST /v1/asset/:user/token/:token API
 router.post('/:user/token/:token', async (req, res) => {
     const user = req.params.user;
     const tokenId = req.params.token;

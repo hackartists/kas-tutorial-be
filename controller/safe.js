@@ -8,7 +8,6 @@ const SafeMoney = require('../model/safe');
 
 router.post('/', async (req, res) => {
     const account = await wallet.createAccount();
-    console.log(account);
 
     const creator = await conv.userToAccount(req.body.creator);
     const txHash = await wallet.sendTrasfer(
@@ -16,15 +15,12 @@ router.post('/', async (req, res) => {
         account.address,
         1,
     );
-    console.log(txHash);
 
     await time.sleep(3000);
 
     const pubkeys = [];
-    console.log(req.body);
 
     for (const el of req.body.invitees.split(' ')) {
-        console.log(el);
         const acc = await conv.userToAccount(el);
         pubkeys.push(acc.publicKey);
     }
@@ -34,14 +30,12 @@ router.post('/', async (req, res) => {
         creator.publicKey,
         pubkeys,
     );
-    console.log(result);
 
     result = await kip17.sendToken(
         creator.address,
         req.body.warrant,
         account.address,
     );
-    console.log(result);
 
     const ret = {
         name: req.body.name,
@@ -54,14 +48,12 @@ router.post('/', async (req, res) => {
     };
     const safeMoney = new SafeMoney(ret);
     result = await safeMoney.save();
-    console.log(result);
 
     res.json(ret);
 });
 
 router.get('/:user', async (req, res) => {
     const safes = await SafeMoney.find({ attendees: req.params.user });
-    console.log(safes);
 
     res.json(safes);
 });
@@ -77,12 +69,10 @@ router.post('/:safe/:token/sign', async (req, res) => {
         address,
         transactionId,
     );
-    console.log(response);
 
     const doc = await SafeMoney.findOne({ address: safeAddress });
     delete doc.pendings[tokenId];
     const result = await doc.save();
-    console.log(result);
 
     res.json(result);
 });

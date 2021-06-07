@@ -2,7 +2,6 @@ const express = require('express');
 const multer = require('multer');
 const conv = require('../utils/conv');
 const Metadata = require('../model/metadata');
-const Safe = require('../model/safe');
 const kip17 = require('../service/kas/kip17');
 const wallet = require('../service/kas/wallet');
 const endpoint = 'http://10.1.1.2:3000';

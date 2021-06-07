@@ -74,7 +74,11 @@ router.post('/:safe/token/:token', async (req, res) => {
     const to = await conv.userToAddress(toUser);
     const from = await conv.userToAddress(fromUser);
     const result = await kip17.sendToken(safeAddress, tokenId, to);
-
+    console.log(result);
+    if (result.transactionHash) {
+        res.json({ transactionHash: result.transactionHash });
+        return;
+    }
     await wallet.signMultisigTransaction(from, result.transactionId);
 
     const safe = await Safe.findOne({ address: safeAddress });
@@ -86,9 +90,11 @@ router.post('/:safe/token/:token', async (req, res) => {
         txid: result.transactionId,
         to: toUser,
     };
+    console.log(safe);
+    safe.markModified('pendings');
     await safe.save();
 
-    res.json(result);
+    res.json({ transactionId: result.transactionId });
 });
 
 // TODO: sign multisig transaction API
@@ -99,13 +105,18 @@ router.post('/:safe/:token/sign', async (req, res) => {
     const safeAddress = req.params.safe;
     const tokenId = req.params.token;
 
-    await wallet.signMultisigTransaction(address, transactionId);
+    const result = await wallet.signMultisigTransaction(address, transactionId);
 
-    const doc = await Safe.findOne({ address: safeAddress });
-    doc.pendings[tokenId] = undefined;
-    const result = await doc.save();
+    if (result.status === 'Submitted') {
+        const doc = await Safe.findOne({ address: safeAddress });
+        delete doc.pendings[tokenId];
+        console.log(doc.pendings);
 
-    res.json(result);
+        doc.markModified('pendings');
+        await doc.save();
+    }
+
+    res.json({ status: 'ok' });
 });
 
 module.exports = router;

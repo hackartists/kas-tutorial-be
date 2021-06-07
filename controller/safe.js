@@ -7,11 +7,9 @@ const time = require('../utils/time');
 const SafeMoney = require('../model/safe');
 
 router.post('/', async (req, res) => {
-    // TODO: create an account
     const account = await wallet.createAccount();
     console.log(account);
 
-    // TODO: send klay from a creator to created one.
     const creator = await conv.userToAccount(req.body.creator);
     const txHash = await wallet.sendTrasfer(
         creator.address,
@@ -20,10 +18,8 @@ router.post('/', async (req, res) => {
     );
     console.log(txHash);
 
-    // TODO: confirm tx receipt.
     await time.sleep(3000);
 
-    // TODO: conversion user to publickey.
     const pubkeys = [];
     console.log(req.body);
 
@@ -33,7 +29,6 @@ router.post('/', async (req, res) => {
         pubkeys.push(acc.publicKey);
     }
 
-    // TODO: update the created account to multisig with invited and creator.
     var result = await wallet.updateAccountToMultisig(
         account.address,
         creator.publicKey,
@@ -41,7 +36,6 @@ router.post('/', async (req, res) => {
     );
     console.log(result);
 
-    // TODO: transfer token to updated address.
     result = await kip17.sendToken(
         creator.address,
         req.body.warrant,

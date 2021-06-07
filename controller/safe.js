@@ -2,10 +2,12 @@ const express = require('express');
 var router = express.Router();
 const wallet = require('../service/kas/wallet');
 const kip17 = require('../service/kas/kip17');
+const node = require('../service/kas/node');
 const conv = require('../utils/conv');
 const time = require('../utils/time');
-const SafeMoney = require('../model/safe');
+const Safe = require('../model/safe');
 
+// TODO: create safe API
 router.post('/', async (req, res) => {
     const account = await wallet.createAccount();
 
@@ -16,7 +18,11 @@ router.post('/', async (req, res) => {
         1,
     );
 
-    await time.sleep(3000);
+    for (var i = 0; i < 3; i++) {
+        await time.sleep(1000);
+        const ret = await node.getReceipt(txHash);
+        if (ret) break;
+    }
 
     const pubkeys = [];
 
@@ -46,18 +52,46 @@ router.post('/', async (req, res) => {
         image: req.body.image,
         attendees: [creator.name].concat(req.body.invitees),
     };
-    const safeMoney = new SafeMoney(ret);
+    const safeMoney = new Safe(ret);
     result = await safeMoney.save();
 
     res.json(ret);
 });
 
+// TODO: list safes API
 router.get('/:user', async (req, res) => {
-    const safes = await SafeMoney.find({ attendees: req.params.user });
+    const safes = await Safe.find({ attendees: req.params.user });
 
     res.json(safes);
 });
 
+// TODO: send card API
+router.post('/:safe/token/:token', async (req, res) => {
+    const safeAddress = req.params.safe;
+    const tokenId = req.params.token;
+    const toUser = req.body.to;
+    const fromUser = req.body.from;
+    const to = await conv.userToAddress(toUser);
+    const from = await conv.userToAddress(fromUser);
+    const result = await kip17.sendToken(safeAddress, tokenId, to);
+
+    await wallet.signMultisigTransaction(from, result.transactionId);
+
+    const safe = await Safe.findOne({ address: safeAddress });
+    if (!safe.pendings) {
+        safe.pendings = {};
+    }
+
+    safe.pendings[tokenId] = {
+        txid: result.transactionId,
+        to: toUser,
+    };
+    await safe.save();
+
+    res.json(result);
+});
+
+// TODO: sign multisig transaction API
 router.post('/:safe/:token/sign', async (req, res) => {
     const transactionId = req.body.transactionId;
     const userId = req.body.userId;
@@ -65,13 +99,10 @@ router.post('/:safe/:token/sign', async (req, res) => {
     const safeAddress = req.params.safe;
     const tokenId = req.params.token;
 
-    const response = await wallet.signMultisigTransaction(
-        address,
-        transactionId,
-    );
+    await wallet.signMultisigTransaction(address, transactionId);
 
-    const doc = await SafeMoney.findOne({ address: safeAddress });
-    delete doc.pendings[tokenId];
+    const doc = await Safe.findOne({ address: safeAddress });
+    doc.pendings[tokenId] = undefined;
     const result = await doc.save();
 
     res.json(result);

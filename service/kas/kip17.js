@@ -21,7 +21,6 @@ class Kip17 extends ApiCaller {
         };
 
         const res = await this.call(options);
-        console.log(res);
     }
 
     async listTokens(address) {
@@ -31,7 +30,6 @@ class Kip17 extends ApiCaller {
         };
 
         const res = await this.call(options);
-        console.log(res);
 
         return res.items;
     }
@@ -49,7 +47,6 @@ class Kip17 extends ApiCaller {
         };
 
         const res = await this.call(options);
-        console.log(res);
 
         return res;
     }

@@ -6,7 +6,7 @@ class Node extends ApiCaller {
         super('https://node-api.klaytnapi.com');
     }
 
-    async getBalance(address) {
+    async rpcCall(method, params) {
         const options = {
             method: 'POST',
             url: '/v1/klaytn',
@@ -16,20 +16,30 @@ class Node extends ApiCaller {
             body: {
                 id: 1,
                 jsonrpc: '2.0',
-                method: 'klay_getBalance',
-                params: [address, 'latest'],
+                method,
+                params,
             },
             json: true,
         };
 
         const ret = await this.call(options);
+
+        return ret.result;
+    }
+
+    async getBalance(address) {
+        const ret = await this.rpcCall('klay_getBalance', [address, 'latest']);
         let klay = '0';
-        if (ret.result) {
-            const peb = caver.utils.hexToNumberString(ret.result);
+        if (ret) {
+            const peb = caver.utils.hexToNumberString(ret);
             klay = caver.utils.convertFromPeb(peb, 'KLAY');
         }
 
         return klay;
+    }
+
+    async getReceipt(txhash) {
+        return await this.rpcCall('klay_getTransactionReceipt', [txhash]);
     }
 }
 

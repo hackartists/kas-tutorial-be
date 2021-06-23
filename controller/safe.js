@@ -12,16 +12,21 @@ router.post('/', async (req, res) => {
     const account = await wallet.createAccount();
 
     const creator = await conv.userToAccount(req.body.creator);
-    const txHash = await wallet.sendTrasfer(
+    const txHash = await wallet.sendTransfer(
         creator.address,
         account.address,
         1,
     );
 
+    var ret;
     for (var i = 0; i < 3; i++) {
         await time.sleep(1000);
-        const ret = await node.getReceipt(txHash);
+        ret = await node.getReceipt(txHash);
         if (ret) break;
+    }
+    if (!ret) {
+        res.json({ code: -1, message: 'failed to send balance' });
+        return;
     }
 
     const pubkeys = [];
@@ -31,19 +36,25 @@ router.post('/', async (req, res) => {
         pubkeys.push(acc.publicKey);
     }
 
-    var result = await wallet.updateAccountToMultisig(
+    await wallet.updateAccountToMultisig(
         account.address,
         creator.publicKey,
         pubkeys,
     );
 
-    result = await kip17.sendToken(
-        creator.address,
-        req.body.warrant,
-        account.address,
-    );
+    for (var i = 0; i < 3; i++) {
+        await time.sleep(1000);
+        ret = await node.getReceipt(txHash);
+        if (ret) break;
+    }
+    if (!ret) {
+        res.json({ code: -2, message: 'failed to create multisig account' });
+        return;
+    }
 
-    const ret = {
+    await kip17.sendToken(creator.address, req.body.warrant, account.address);
+
+    ret = {
         name: req.body.name,
         creator: req.body.creator,
         address: account.address,
@@ -53,7 +64,7 @@ router.post('/', async (req, res) => {
         attendees: [creator.name].concat(req.body.invitees),
     };
     const safeMoney = new Safe(ret);
-    result = await safeMoney.save();
+    await safeMoney.save();
 
     res.json(ret);
 });

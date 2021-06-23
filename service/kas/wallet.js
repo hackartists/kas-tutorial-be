@@ -16,7 +16,7 @@ class Wallet extends ApiCaller {
         return await this.call(options);
     }
 
-    async sendTrasfer(from, to, amount) {
+    async sendTransfer(from, to, amount) {
         const peb = caver.utils.convertToPeb(amount, 'KLAY');
         const hexpeb = caver.utils.numberToHex(peb);
 

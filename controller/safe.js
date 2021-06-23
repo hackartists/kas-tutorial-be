@@ -12,16 +12,21 @@ router.post('/', async (req, res) => {
     const account = await wallet.createAccount();
 
     const creator = await conv.userToAccount(req.body.creator);
-    const txHash = await wallet.sendTrasfer(
+    const txHash = await wallet.sendTransfer(
         creator.address,
         account.address,
         1,
     );
 
+    var ret;
     for (var i = 0; i < 3; i++) {
         await time.sleep(1000);
-        const ret = await node.getReceipt(txHash);
+        ret = await node.getReceipt(txHash);
         if (ret) break;
+    }
+    if (!ret) {
+        res.json({ code: -1, message: 'failed to send balance' });
+        return;
     }
 
     const pubkeys = [];
@@ -31,19 +36,25 @@ router.post('/', async (req, res) => {
         pubkeys.push(acc.publicKey);
     }
 
-    var result = await wallet.updateAccountToMultisig(
+    await wallet.updateAccountToMultisig(
         account.address,
         creator.publicKey,
         pubkeys,
     );
 
-    result = await kip17.sendToken(
-        creator.address,
-        req.body.warrant,
-        account.address,
-    );
+    for (var i = 0; i < 3; i++) {
+        await time.sleep(1000);
+        ret = await node.getReceipt(txHash);
+        if (ret) break;
+    }
+    if (!ret) {
+        res.json({ code: -2, message: 'failed to create multisig account' });
+        return;
+    }
 
-    const ret = {
+    await kip17.sendToken(creator.address, req.body.warrant, account.address);
+
+    ret = {
         name: req.body.name,
         creator: req.body.creator,
         address: account.address,
@@ -53,7 +64,7 @@ router.post('/', async (req, res) => {
         attendees: [creator.name].concat(req.body.invitees),
     };
     const safeMoney = new Safe(ret);
-    result = await safeMoney.save();
+    await safeMoney.save();
 
     res.json(ret);
 });
@@ -63,60 +74,6 @@ router.get('/:user', async (req, res) => {
     const safes = await Safe.find({ attendees: req.params.user });
 
     res.json(safes);
-});
-
-// TODO: send card API
-router.post('/:safe/token/:token', async (req, res) => {
-    const safeAddress = req.params.safe;
-    const tokenId = req.params.token;
-    const toUser = req.body.to;
-    const fromUser = req.body.from;
-    const to = await conv.userToAddress(toUser);
-    const from = await conv.userToAddress(fromUser);
-    const result = await kip17.sendToken(safeAddress, tokenId, to);
-    console.log(result);
-    if (result.transactionHash) {
-        res.json({ transactionHash: result.transactionHash });
-        return;
-    }
-    await wallet.signMultisigTransaction(from, result.transactionId);
-
-    const safe = await Safe.findOne({ address: safeAddress });
-    if (!safe.pendings) {
-        safe.pendings = {};
-    }
-
-    safe.pendings[tokenId] = {
-        txid: result.transactionId,
-        to: toUser,
-    };
-    console.log(safe);
-    safe.markModified('pendings');
-    await safe.save();
-
-    res.json({ transactionId: result.transactionId });
-});
-
-// TODO: sign multisig transaction API
-router.post('/:safe/:token/sign', async (req, res) => {
-    const transactionId = req.body.transactionId;
-    const userId = req.body.userId;
-    const address = await conv.userToAddress(userId);
-    const safeAddress = req.params.safe;
-    const tokenId = req.params.token;
-
-    const result = await wallet.signMultisigTransaction(address, transactionId);
-
-    if (result.status === 'Submitted') {
-        const doc = await Safe.findOne({ address: safeAddress });
-        delete doc.pendings[tokenId];
-        console.log(doc.pendings);
-
-        doc.markModified('pendings');
-        await doc.save();
-    }
-
-    res.json({ status: 'ok' });
 });
 
 module.exports = router;

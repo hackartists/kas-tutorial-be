@@ -88,7 +88,7 @@ router.post('/:user/klay', async (req, res) => {
     const amount = req.body.amount;
     console.log(from, to, amount);
 
-    const txHash = await wallet.sendTrasfer(from, to, amount);
+    const txHash = await wallet.sendTransfer(from, to, amount);
 
     res.json({
         txHash,

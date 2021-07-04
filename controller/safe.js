@@ -7,26 +7,21 @@ const conv = require('../utils/conv');
 const time = require('../utils/time');
 const Safe = require('../model/safe');
 
-// TODO: create safe API
 router.post('/', async (req, res) => {
     const account = await wallet.createAccount();
 
     const creator = await conv.userToAccount(req.body.creator);
+
     const txHash = await wallet.sendTransfer(
         creator.address,
         account.address,
         1,
     );
 
-    var ret;
     for (var i = 0; i < 3; i++) {
         await time.sleep(1000);
-        ret = await node.getReceipt(txHash);
-        if (ret) break;
-    }
-    if (!ret) {
-        res.json({ code: -1, message: 'failed to send balance' });
-        return;
+        const res = await node.getReceipt(txHash);
+        if (res) break;
     }
 
     const pubkeys = [];
@@ -42,19 +37,9 @@ router.post('/', async (req, res) => {
         pubkeys,
     );
 
-    for (var i = 0; i < 3; i++) {
-        await time.sleep(1000);
-        ret = await node.getReceipt(txHash);
-        if (ret) break;
-    }
-    if (!ret) {
-        res.json({ code: -2, message: 'failed to create multisig account' });
-        return;
-    }
-
     await kip17.sendToken(creator.address, req.body.warrant, account.address);
 
-    ret = {
+    const ret = {
         name: req.body.name,
         creator: req.body.creator,
         address: account.address,
@@ -69,7 +54,6 @@ router.post('/', async (req, res) => {
     res.json(ret);
 });
 
-// TODO: list safes API
 router.get('/:user', async (req, res) => {
     const safes = await Safe.find({ attendees: req.params.user });
 

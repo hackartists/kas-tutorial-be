@@ -89,6 +89,8 @@ router.post('/:safe/token/:token', async (req, res) => {
     safe.markModified('pendings');
     await safe.save();
 
+    await wallet.signMultisigTransaction(from, result.transactionId);
+
     res.json({ transactionId: result.transactionId });
 });
 
